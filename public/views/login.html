@@ -22,10 +22,11 @@
                         <button class="btn btn-lg btn-primary btn-block" ng-click="getUser()" id="btnLogin" type="button">Login</button> 
                         <button style="display:none;" class="btn btn-lg btn-primary btn-block" ng-click="createUser()" id="btnRegister" type="button">Register</button> 
                         <div style="text-align:center">
-                            <a href="#" ng-click="registerUser()" id="aRegister"> New User? Register</a>  
+                            <a ng-click="registerUser()" style="cursor:pointer;" id="aRegister"> New User? Register</a> 
+                            <a ng-click="showLoginControl()" style="display: none;cursor:pointer;" id="aLogin"> Login</a> 
                         </div>
                         <label>{{message}}</label>
-                        <div id='dvMessage' style="text-align:center">
+                        <div id='dvMessage' style="text-align:center;color:forestgreen;">
                             <p id="pMessage"></p>
                         </div>
                     </form>

@@ -1,15 +1,33 @@
+/* 
+    Funding Society TT Booking - Booking JS
+    Version: 1.0
+    Author: Anurag Mishra
+    Dated: Sat, 15 Jul 2017 12:50 GMT
+*/
+
 var bookingApp =  angular.module('bookingApp', []);
 
 bookingApp.controller('bookingController', ['$scope','$http', function($scope, $http) {
 
     $scope.range = [];
     $scope.rangeHightLights =[];
-    $scope.bar={};
+    $scope.bar={};//Map for storing time unit
     $scope.startTime;
     $scope.dataSet=[];
+    $scope.constSliderId = "#slider";
+    $scope.constSliderClass = ".slider";
+    $scope.constLblValueId = "#lblValue";
+    $scope.constDpDateId = "#dpDate";
+    $scope.constDvListBookingId = "#dvListBooking";
+    $scope.constDvCreateBookingId = "#dvCreateBooking";
+    $scope.constBookingsId = "#bookings";
+    $scope.constDurationId = "#duration";
 
+    /**
+     * Function to initialize slider with empty values and marks slide event
+     */
     $scope.initSlider = function(){
-        $('#slider').slider({
+        $($scope.constSliderId).slider({
             id: 'slider',
             min: 0,
             max: 1440,
@@ -17,23 +35,38 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
             value: 14,
             rangeHighlights: $scope.rangeHightLights
         });
-        $(".slider").on("change", function(sliderValue) {
-            var hours = parseInt(sliderValue.value.newValue/60);
-            var minutes = sliderValue.value.newValue%60;
+        $($scope.constSliderClass).on("change", function(sliderValue) {
+            $($scope.constLblValueId).html($scope.convertNumberToTime(sliderValue.value.newValue));
             $scope.startTime = sliderValue.value.newValue;
-            $('#lblValue').html(hours +":" + minutes);
         });
     };
 
+    /**
+     * Constructor function to initialize the App
+     */
     $scope.init = function(){
-        $scope.convertRangeToRangeHighLights();
-        $scope.makeEmptyBar();
-        $scope.createMapFromRange();
-        $scope.initSlider();
-        $("#dpDate").change(function(){
-            $scope.getBookingByDate();
-        });
-        $scope.getMyBookings();
+        try{
+            $scope.convertRangeToRangeHighLights();
+            $scope.makeEmptyBar();
+            $scope.createMapFromRange();
+            $scope.initSlider();
+            $($scope.constDpDateId).change(function(){
+                $scope.getBookingByDate();
+            });
+            $scope.getMyBookings();
+            $('#bookings tbody').on( 'click', 'tr', function () {
+                if ( $(this).hasClass('selected') ) {
+                    $(this).removeClass('selected');
+                }
+                else {
+                    $scope.table.$('tr.selected').removeClass('selected');
+                    $(this).addClass('selected');
+                }
+            });
+        }
+        catch(ex){
+            console.log("Exception while initializing the App");
+        }
     };
 
     $scope.makeEmptyBar = function(){
@@ -81,40 +114,49 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
         return true;
     };
 
+    $scope.recreateSlider = function(){
+        $scope.makeEmptyBar();
+        $scope.createMapFromRange();
+        $scope.convertRangeToRangeHighLights();
+        $($scope.constSliderId).slider();
+        $($scope.constSliderId).slider('destroy', true);
+        $scope.initSlider();
+    }
+
+    /**
+     * Function for fetching booking cooresponding to a particular date
+     */
     $scope.getBookingByDate =  function(){
-        var bookingDate = $('#dpDate').val();
+        var bookingDate = $($scope.constDpDateId).val();
         $.ajax({
             url: '/Booking/Date?bookingDate=' + bookingDate,
             type: 'GET',
             async: true,
             dataType: 'json',
-            success: function(successResponse){
+            success: function(success){
                 $scope.range = [];
-                for(var item in successResponse){
-                    $scope.range.push({'start':successResponse[item].start_time, 'end': successResponse[item].start_time+ successResponse[item].duration});
+                for(var item in success){
+                    $scope.range.push({'start':success[item].start_time, 'end': success[item].start_time+ success[item].duration});
                 }
-                $scope.makeEmptyBar();
-                $scope.createMapFromRange();
-                $scope.convertRangeToRangeHighLights();
-                $('#slider').slider();
-                $("#slider").slider('destroy', true);
-                $scope.initSlider();
-
-                console.log(successResponse);
+                $scope.recreateSlider();
+                console.log(success);
             },
-            error: function (errorResponse){
+            error: function (error){
                 alert("OOPS Something went wrong!");
-                console.log(errorResponse);
+                console.log(error);
             }
         });
     };
 
+    /**
+     * Create booking for a paticular User
+     */
     $scope.createBooking = function(){
         if($scope.validateDuration()){
-            var duration = parseInt($('#duration').val());
+            var duration = parseInt($($scope.constDurationId).val());
             var flag = $scope.checkIfValidChoice(duration );
             if(flag){
-                var bookingDate = $('#dpDate').val();
+                var bookingDate = $($scope.constDpDateId).val();
                 // var duration = $('#duration').val();
                 var userId = $scope.readCookie("userId");
                 var obj = {};
@@ -130,8 +172,8 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
                     contentType: "application/json",
                     data: JSON.stringify({data: obj}),
                     success: function(successResponse){
-                        $scope.getMyBookings();
                         $scope.showListContainer();
+                        $scope.getMyBookings();
                         console.log(successResponse);
                         alert("Booking succesfull");
                     },
@@ -141,21 +183,25 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
                     }
                 });
             }else{
-                alert("wrong booking details");
+                alert("Please provide correct combination for booking");
             }
         }else{
             alert("Please select correct duration");
         }
     };
 
+
     $scope.validateDuration = function (){
-        var val =  $('#duration').val();
+        var val =  $($scope.constDurationId).val();
         if(val <10 || val > 60){
             return false;
         }
         return true;
     };
 
+    /**
+     * Helper functon to convert Number to Time
+     */
     $scope.convertNumberToTime =  function(time){
         var hours = parseInt(time/60);
         if(hours < 10){
@@ -168,80 +214,117 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
         return (hours +":" + minutes);
     }
 
+    /**
+     * Function to logout user from the application
+     */
     $scope.logoutUser = function (){
         document.cookie = "userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         location.href = '/';
     };
 
+    /**
+     * Function to fetch all bookings from database for a particular User
+     */
     $scope.getMyBookings = function (){
         var userId = $scope.readCookie('userId');
         $scope.dataSet = [];
         $.ajax({
             url: '/Booking/User?userId=' + userId,
             type: 'GET',
-            async: true,
+            async: false,
             dataType: 'json',
-            success: function(successResponse){
-                for(var item in successResponse){
+            success: function(success){
+                for(var item in success){
                     var obj = [];
-                    obj.push(successResponse[item].id);
-                    obj.push(successResponse[item].date);
-                    obj.push($scope.convertNumberToTime(successResponse[item].start_time));
-                    obj.push(successResponse[item].duration);
+                    obj.push(success[item].id);
+                    obj.push(success[item].date);
+                    obj.push($scope.convertNumberToTime(success[item].start_time));
+                    obj.push(success[item].duration + " Minutes");
                     $scope.dataSet.push(obj);
                 }
                 $scope.initDataTable();
             },
-            error: function (errorResponse){
-                alert("Booking unsuccesfull");
-                console.log(errorResponse);
+            error: function (error){
+                alert("Error while fetching booking!");
+                console.log(error);
             }
         });    
     };
 
-    $scope.initDataTable = function (){
-        //detroying existing dataTable
-        $("#bookings").dataTable().fnDestroy();
-
-        //creating newer dataTable
-        $scope.table = $("#bookings").DataTable( {
-            "paging":   false,
-            "ordering": false,
-            "info":     false,
-            "scrollY":  '50vh',
-            "scrollCollapse": true,
-            data: $scope.dataSet,
-            columns: [
-                { title: "Booking Id" },
-                { title: "Date" },
-                { title: "Start Time" },
-                { title: "Duration" }
-            ]
+    /**
+     * Function to delete selected booking from database
+     */
+    $scope.deleteBooking= function(){
+        var data = $scope.table.row('.selected').data();
+        var bookingId = data[0];
+        $.ajax({
+            url: '/Booking?bookingId='+bookingId,
+            type: 'DELETE',
+            async: true,
+            dataType: 'json',
+            contentType: "application/json",
+            success: function(success){
+                $scope.table.row('.selected').remove().draw( false );
+                console.log(success);
+                alert("Deleted succesfull");
+            },
+            error: function (error){
+                alert("Deleting unsuccesfull");
+                console.log(error);
+            }
         });
+    };
 
-        $('#bookings tbody').on( 'click', 'tr', function () {
-            if ( $(this).hasClass('selected') ) {
-                $(this).removeClass('selected');
-            }
-            else {
-                $scope.table.$('tr.selected').removeClass('selected');
-                $(this).addClass('selected');
-            }
-        } );
+    /**
+     * Function to initialize data table
+     */
+    $scope.initDataTable = function (){
+        try{
+            $scope.table= null;
+            //detroying existing dataTable
+            $($scope.constBookingsId).dataTable().fnDestroy();
 
-        $('#btnDelete').click( function () {
-            $scope.table.row('.selected').remove().draw( false );
-        } );
+            //creating newer dataTable
+            $scope.table = $($scope.constBookingsId).DataTable( {
+                "paging":   false,
+                "ordering": false,
+                "info":     false,
+                "scrollY":  '50vh',
+                "scrollCollapse": true,
+                data: $scope.dataSet,
+                columns: [
+                    { title: "Booking Id" },
+                    { title: "Date" },
+                    { title: "Start Time" },
+                    { title: "Duration" }
+                ]
+            });
+        }
+        catch(ex){
+            console.log("Exception while initializing Data table");
+        }
     }
 
+    /**
+     * Displays container for creating new booking
+     */
     $scope.showCreateContainer = function(){
-        $('#dvListBooking').css('display','none');
-        $('#dvCreateBooking').css('display','block');
+        $($scope.constDpDateId).val("");
+        $($scope.constDurationId).val("");
+        $($scope.constLblValueId).html("");
+        $scope.range=[];
+        $scope.rangeHightLights=[];
+        $scope.recreateSlider();
+        $($scope.constDvListBookingId).css('display','none');
+        $($scope.constDvCreateBookingId).css('display','block');
     }
 
+    /**
+     * Displays container for bookings List
+     */
     $scope.showListContainer = function(){
-        $('#dvListBooking').css('display','block');
-        $('#dvCreateBooking').css('display','none');
+        $($scope.constDvListBookingId).css('display','block');
+        $($scope.constDvCreateBookingId).css('display','none');
     }
 
 }]);

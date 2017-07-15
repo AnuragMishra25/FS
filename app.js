@@ -1,8 +1,8 @@
 /* 
-    DATAIKU - US CENSUS REPORT app.js
+    Funding Society TT Booking - APP JS
     Version: 1.0
     Author: Anurag Mishra
-    Dated: Sun, 2 July 2017 12:20 AM
+    Dated: Sat, 15 Jul 2017 12:50 GMT
 */
 
 const express = require('express');
@@ -48,19 +48,33 @@ app.get('/', function (req, res) {
 	}
 })
 
+ /**
+ * API to render booking page, if logged in, else redirection to Login page
+ * @param {object} req - Node req object used for making server calls from Node server
+ * @param {object} res - Node res object used for receiving result from Node server calls
+ */
 app.get('/booking', function(req, res){
-	res.render("booking");
+	if(req.cookies.userId != undefined){
+		res.render('booking');
+	}else{
+		res.render("login");
+	}
 })
 
-//API for creating user on the basis of username and password
+ /**
+ * API for creating new user with given username and password
+ * @param {object} req - Node req object used for making server calls from Node server
+ * @param {object} res - Node res object used for receiving result from Node server calls
+ */
 app.post('/User', function(req, res){
   	var email = req.body.data.email;
   	var password = req.body.data.password;
     db.all("SELECT * FROM User WHERE email='" + email + "' AND password ='" + password + "';",function(err,rows){
 		if(err){
 			console.log(err);
-			res.status(500).send({message: 'Error while Fetching columns from table',  error: err});
+			res.status(500).send({message: 'Error while Fetching data from User Table',  error: err});
 		}else{
+			//checking if username and password combo already taken
 			if(rows.length > 0){
 				res.status(500).send("User Already exists");
 			}else{
@@ -73,20 +87,22 @@ app.post('/User', function(req, res){
 					}
 				});
 			}
-			console.log('now rows' + rows.length);
 		}
 	});
 })
 
-
-//API for fetching user information on the basis of username and password
+/**
+ * API for fetching user information on the basis of username and password
+ * @param {object} req - Node req object used for making server calls from Node server
+ * @param {object} res - Node res object used for receiving result from Node server calls
+ */
 app.get('/User', function(req, res){
-  var email = req.query.email;
-  var password = req.query.password;
+  	var email = req.query.email;
+  	var password = req.query.password;
   	db.all("SELECT * FROM User WHERE email='" + email + "' AND password ='" + password + "';",function(err,rows){
 		if(err){
 			console.log(err);
-			res.status(500).send({message: 'Error while Fetching columns from table',  error: err});
+			res.status(500).send({message: 'Error while Fetching user from User table',  error: err});
 		}else{
 			if(rows.length >0){
 				res.status(200).send(rows);
@@ -97,7 +113,11 @@ app.get('/User', function(req, res){
 	});
 })
 
-//API for fetching all bookings for user of userId
+/**
+ *API for fetching all bookings for User from given UserId
+ * @param {object} req - Node req object used for making server calls from Node server
+ * @param {object} res - Node res object used for receiving result from Node server calls
+ */
 app.get('/Booking/User', function(req, res){
   var userId = req.cookies.userId;
   	db.all("SELECT * FROM Booking WHERE user_id=" + userId +" ORDER BY date, start_time;",function(err,rows){
@@ -111,7 +131,11 @@ app.get('/Booking/User', function(req, res){
 	});
 })
 
-//API for creating booking for a User
+/**
+ *API for creating new Booking
+ * @param {object} req - Node req object used for making server calls from Node server
+ * @param {object} res - Node res object used for receiving result from Node server calls
+ */
 app.post('/Booking', function(req, res){
 	var userId = req.body.data.userId;
 	var startTime = req.body.data.startTime;
@@ -129,7 +153,11 @@ app.post('/Booking', function(req, res){
 	});
 })
 
-//API for creating booking for a User
+/**
+ *API for fetching booking by date
+ * @param {object} req - Node req object used for making server calls from Node server
+ * @param {object} res - Node res object used for receiving result from Node server calls
+ */
 app.get('/Booking/Date', function(req, res){
 	var bookinDate = req.query.bookingDate;
 	db.all("SELECT * FROM Booking where date = '"+bookinDate+"';",function(err,rows){
@@ -142,7 +170,11 @@ app.get('/Booking/Date', function(req, res){
 	});
 })
 
-//API for creating booking for a User
+/**
+ *API for fetching booking by User
+ * @param {object} req - Node req object used for making server calls from Node server
+ * @param {object} res - Node res object used for receiving result from Node server calls
+ */
 app.get('/Booking/User', function(req, res){
 	var userId = req.query.userId;
 	db.all("SELECT * FROM Booking where user_id = '"+userId+"';",function(err,rows){
@@ -156,7 +188,24 @@ app.get('/Booking/User', function(req, res){
 })
 
 /**
- * API to handle get request for data corresponding to columns
+ *API for deleting a particular booking
+ * @param {object} req - Node req object used for making server calls from Node server
+ * @param {object} res - Node res object used for receiving result from Node server calls
+ */
+app.delete('/Booking', function(req, res){
+	var bookingId = req.query.bookingId;
+	db.all("DELETE FROM Booking where id = '"+bookingId+"';",function(err,rows){
+		if(err){
+			console.log(err);
+			res.status(400).send({message: 'Error while Fetching columns from table',  error: err});
+		}else{
+			res.send(rows);
+		}
+	});
+})
+
+/**
+ * Boot function to startup the node server
  * @param {integer} port - Node requires port on which it will run
  * @param {function} callback funtion which runs as soon as the server starts
  */
