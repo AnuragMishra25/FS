@@ -100,7 +100,7 @@ app.get('/User', function(req, res){
 //API for fetching all bookings for user of userId
 app.get('/Booking/User', function(req, res){
   var userId = req.cookies.userId;
-  	db.all("SELECT * FROM Booking WHERE user_id=" + userId +";",function(err,rows){
+  	db.all("SELECT * FROM Booking WHERE user_id=" + userId +" ORDER BY date, start_time;",function(err,rows){
 		if(err){
 			console.log(err);
 			res.status(500).send({message: 'Error while Fetching bookings for a user',  error: err});
