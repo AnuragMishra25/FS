@@ -1,0 +1,27 @@
+{
+  "name": "fund_soc",
+  "version": "1.0.0",
+  "description": "dummy project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnuragMishra25/FS.git"
+  },
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.15.3",
+    "nunjucks": "^3.0.1",
+    "request": "^2.81.0",
+    "sqlite3": "^3.1.8"
+  },
+  "author": "Anurag Mishra",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AnuragMishra25/FS/issues"
+  },
+  "homepage": "https://github.com/AnuragMishra25/FS#readme"
+}

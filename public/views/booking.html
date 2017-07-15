@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        TT Booking System
+    </title>
+
+
+    <link rel='stylesheet prefetch' href='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css'>
+    <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.1.3/css/bootstrap-datetimepicker.min.css'>
+    <link rel='stylesheet prefetch' href='http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'>
+    <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.1/css/bootstrap-slider.min.css'>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <div class="container">
+        <div id="dvHeader" class="row">
+            <h1 class="col-xs-9">T.T. Booking System</h1>
+            <div class="col-xs-3">
+                <button class="btn btn-lg btn-primary" style="float:right;" onclick="logoutUser();" id="btnLogout" type="button">Logout</button> 
+            </div>
+        </div>
+        <div id="dvCreateBooking" class="row">
+            <form class="form-signin" style="max-width:99%;height:100%">
+                <div class="form-group height50">
+                    <label class="control-label col-sm-2" for="email">Date:</label>
+                    <div class="col-sm-9">
+                        <input type="date" id="dpDate"/> 
+                    </div>
+                </div>
+                <div class="form-group height50">
+                    <label class="control-label col-sm-2" for="email">Time:</label>
+                    <div class="col-sm-9">
+                        <input id="slider" style="width:100%" type="text"/>
+                    </div>
+                    <div class="col-sm-1">
+                        <label id="lblValue"></label>
+                    </div>
+                </div>
+                <div class="form-group height50">
+                    <label class="control-label col-sm-2" for="email">Duration:</label>
+                    <div class="col-sm-4">
+                        <input class="form-control" id="duration" type="number" min="10" max="60"/>
+                    </div>
+                </div>
+                <button class="btn btn-lg btn-primary btn-block" onclick="createBooking();" id="btnBook" type="button">Book Table</button> 
+            </form>
+        </div>
+        <div id="dvListBooking" class="row">
+            <div class="col-xs-12">
+                <button class="btn btn-lg btn-primary btn-block" id="btnDelete" type="button">Delete Row</button> 
+            </div>
+            <div class="col-xs-12">
+					<table id="bookings" class="display" cellspacing="0" width="100%">
+						<thead>
+							<tr>
+								<th>Booking Id</th>
+								<th>Date</th>
+								<th>Start Time</th>
+                                <th>Duration</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+        </div>
+    </div>
+
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script src='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.1/bootstrap-slider.min.js'></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js'></script>
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.1.3/js/bootstrap-datetimepicker.min.js'></script>
+    <script type="text/javascript" src="js/booking.js"></script>
+</body>
+
+</html>

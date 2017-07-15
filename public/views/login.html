@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            TT Booking System
+        </title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css">
+	    <link rel="stylesheet" href="css/index.css">
+    </head>
+    <body>
+        <div class="container" ng-app="loginApp">
+            <div id="dvHeader" class="row">
+                <h1>T.T. Booking System</h1> 
+            </div>
+            <div id="dvLogin" ng-controller="loginController" ng-init="init()">
+                <div class="wrapper">
+                    <form class="form-signin">       
+                        <h2 class="form-signin-heading">Please login</h2>
+                        <input type="text" class="form-control" ng-model="username" id="txtUserName" placeholder="Email Address" required="" autofocus="" />
+                        <input type="password" class="form-control" ng-model="password" id="txtPassword" placeholder="Password" required=""/>      
+                        <button class="btn btn-lg btn-primary btn-block" ng-click="getUser()" id="btnLogin" type="button">Login</button> 
+                        <button style="display:none;" class="btn btn-lg btn-primary btn-block" ng-click="createUser()" id="btnRegister" type="button">Register</button> 
+                        <div style="text-align:center">
+                            <a href="#" ng-click="registerUser()" id="aRegister"> New User? Register</a>  
+                        </div>
+                        <label>{{message}}</label>
+                        <div id='dvMessage' style="text-align:center">
+                            <p id="pMessage"></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div> 
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+        <script type="text/javascript" src="js/login.js"></script>
+    </body>
+</html>
