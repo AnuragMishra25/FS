@@ -16,6 +16,14 @@ loginApp.controller('loginController', ['$scope', '$http', function($scope,$http
         $scope.username = "";
         $scope.password = "";
         $scope.message = "";
+        //storig strings for dom manipulation inside scope,and accessing everytime from here
+        // so that if we change dom, only one place needs to change!
+        $scope.pMessageId = "#pMessage";
+        $scope.btnLoginId = "#btnLogin";
+        $scope.aRegisterId = "#aRegister";
+        $scope.aLoginId = "#aLogin";
+        $scope.btnRegisterId = "#btnRegister";
+
     }
 
     /**
@@ -23,7 +31,7 @@ loginApp.controller('loginController', ['$scope', '$http', function($scope,$http
      */
     $scope.createUser =  function(){
         $scope.message = "";
-        $('#pMessage').html('');
+        $($scope.pMessageId).html('');
         var obj = {};
         obj.email = $scope.username.trim();
         obj.password = $scope.password.trim();
@@ -41,14 +49,14 @@ loginApp.controller('loginController', ['$scope', '$http', function($scope,$http
                     success: function(data){
                         console.log(data);
                         $scope.message = "";
-                        $('#pMessage').html('User Created, Login to continue!');
-                        $('#pMessage').css('color', 'green');
+                        $($scope.pMessageId).html('User Created, Login to continue!');
+                        $($scope.pMessageId).css('color', 'green');
                         $scope.showLoginControl();
                     },
                     error: function (error){
                         if(error.responseJSON.error){
-                            $('#pMessage').html(error.responseJSON.message);
-                            $('#pMessage').css('color', 'red');
+                            $($scope.pMessageId).html(error.responseJSON.message);
+                            $($scope.pMessageId).css('color', 'red');
                         }
                         console.log(error);
                     }
@@ -65,20 +73,20 @@ loginApp.controller('loginController', ['$scope', '$http', function($scope,$http
      * Display control relevant to Register funtionality
      */
     $scope.showRegisterControls = function(){
-        $('#btnLogin').css('display','none');
-        $('#aRegister').css('display','none');
-        $('#aLogin').css('display','block');
-        $('#btnRegister').css('display','block');
+        $($scope.btnLoginId).css('display','none');
+        $($scope.aRegisterId).css('display','none');
+        $($scope.aLoginId).css('display','block');
+        $($scope.btnRegisterId).css('display','block');
     }
 
     /**
      * Display control relevant to Login funtionality
      */
     $scope.showLoginControl =  function(){
-        $('#btnLogin').css('display','block');
-        $('#btnRegister').css('display','none');
-        $('#aRegister').css('display','block');
-        $('#aLogin').css('display','none');
+        $($scope.btnLoginId).css('display','block');
+        $($scope.btnRegisterId).css('display','none');
+        $($scope.aRegisterId).css('display','block');
+        $($scope.aLoginId).css('display','none');
     }
 
     /**
@@ -87,7 +95,7 @@ loginApp.controller('loginController', ['$scope', '$http', function($scope,$http
     $scope.registerUser = function(){
         $scope.showRegisterControls();
         $scope.message="";
-        $('#pMessage').html('');
+        $($scope.pMessageId).html('');
     };
 
     /**
@@ -114,7 +122,7 @@ loginApp.controller('loginController', ['$scope', '$http', function($scope,$http
             alert("Please Enter correct credentials");
         }else{
             $scope.message = "";
-            $('#pMessage').html('');
+            $($scope.pMessageId).html('');
             $.ajax({
                 url: '/User?email='+$scope.username +'&password='+ $scope.password,
                 type: 'GET',
@@ -125,7 +133,6 @@ loginApp.controller('loginController', ['$scope', '$http', function($scope,$http
                     //creating cookie for next time auto login
                     $scope.createCookie("userId",userid, 90);
                     location.href="/booking";
-                    console.log(data);
                 },
                 error: function (error){
                     if(error.responseJSON.error){

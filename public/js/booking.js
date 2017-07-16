@@ -14,6 +14,9 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
     $scope.bar={};//Map for storing time unit
     $scope.startTime;
     $scope.dataSet=[];
+
+    //storig strings for dom manipulation inside scope,and accessing everytime from here
+    // so that if we change dom, only one place needs to change!
     $scope.constSliderId = "#slider";
     $scope.constSliderClass = ".slider";
     $scope.constLblValueId = "#lblValue";
@@ -120,6 +123,9 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
         }
     };
 
+    /**
+     * Function for checking the data before creating the booking
+     */
     $scope.checkIfValidChoice = function(duration){
         //check with other bookings
         for(var i= $scope.startTime;i<$scope.startTime+duration;i++){
@@ -152,7 +158,9 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
     };
 
 
-
+    /**
+     * Function for recreating the slider, removes last selectiona and creates new instance
+     */
     $scope.recreateSlider = function(){
         $scope.makeEmptyBar();
         $scope.createMapFromRange();

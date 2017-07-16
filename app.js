@@ -46,7 +46,7 @@ router.get('/', function (req, res) {
 	if(req.cookies.userId != undefined){
 		res.status(200).render('booking');
 	}else{
-		res.status(200).render("login");
+		res.status(200).render('login');
 	}
 })
 
@@ -59,7 +59,7 @@ router.get('/booking', function(req, res){
 	if(req.cookies.userId != undefined){
 		res.render('booking');
 	}else{
-		res.render("login");
+		res.render('login');
 	}
 })
 
@@ -69,29 +69,26 @@ router.get('/booking', function(req, res){
  * @param {object} res - Node res object used for receiving result from Node server calls
  */
 router.post('/User', function(req, res){
-	console.log(req.body);
   	let email = req.body.data.email;
   	let password = req.body.data.password;
-    db.all("SELECT * FROM User WHERE email='" + email + "' AND password ='" + password + "';",function(err,rows){
+	let query = "SELECT * FROM User WHERE email='" + email + "' AND password ='" + password + "';";
+    db.all(query,function(err,rows){
 		if(err){
-			console.log(err);
+			console.log("Error in POST USER " + err);
 			res.status(500).json({"error" : true, "message" : "Error while Fetching data from User Table"});
-			// res.status(500).send({message: '',  error: err});
 		}else{
 			//checking if username and password combo already taken
 			if(rows.length > 0){
 				res.status(500).json({"error" : true, "message" : "User Already exists"});
-				// res.status(500).send("");
 			}else{
-				db.all("INSERT INTO User (email, password) VALUES ('" + email + "','" + password + "');",function(err,rows){
+				let query = "INSERT INTO User (email, password) VALUES ('" + email + "','" + password + "');";
+				db.all(query,function(err,rows){
 					if(err){
-						console.log(err);
+						console.log("Error in POST USER " + err);
 						res.status(500).json({"error" : true, "message" : "Error while Fetching columns from table"});
-						// res.status(500).send({message: '',  error: err});
 					}else{
 						console.log(rows);
 						res.status(200).json({"error" : false, "message" : rows});
-						// res.send(rows);
 					}
 				});
 			}
@@ -108,10 +105,10 @@ router.delete('/User', function(req, res){
 	console.log(req.body);
   	let email = req.body.data.email;
   	let password = req.body.data.password;
-	  console.log("came here"+ req.body);
-    db.all("DELETE FROM User WHERE email='" + email + "' AND password ='" + password + "';",function(err,rows){
+	  let query = "DELETE FROM User WHERE email='" + email + "' AND password ='" + password + "';";
+    db.all(query,function(err,rows){
 		if(err){
-			console.log(err);
+			console.log("Error in DELETE USER " + err);
 			res.status(500).json({"error" : true, "message" : "Error while deleting data from User Table"});
 		}else{
 			res.status(200).json({"error" : false, "message" : rows});
@@ -127,18 +124,16 @@ router.delete('/User', function(req, res){
 router.get('/User', function(req, res){
   	let email = req.query.email;
   	let password = req.query.password;
-  	db.all("SELECT * FROM User WHERE email='" + email + "' AND password ='" + password + "';",function(err,rows){
+	let query = "SELECT * FROM User WHERE email='" + email + "' AND password ='" + password + "';";
+  	db.all(query ,function(err,rows){
 		if(err){
-			console.log(err);
+			console.log("Error in GET USER " + err);
 			res.status(500).json({"error" : true, "message" : "Error while Fetching user from User table"});
-			// res.status(500).send({message: 'Error while Fetching user from User table',  error: err});
 		}else{
 			if(rows.length >0){
 				res.status(200).json({"error" : false, "message" : rows});
-				// res.status(200).send(rows);
 			}else{
 				res.status(500).json({"error" : true, "message" : "no record found"});
-				// res.status(500).send("");
 			}
 		}
 	});
@@ -151,15 +146,14 @@ router.get('/User', function(req, res){
  */
 router.get('/Booking/User', function(req, res){
   	let userId = req.cookies.userId;
-  	db.all("SELECT * FROM Booking WHERE user_id=" + userId +" ORDER BY date, start_time;",function(err,rows){
+	let query = "SELECT * FROM Booking WHERE user_id=" + userId +" ORDER BY date, start_time;";
+  	db.all(query ,function(err,rows){
 		if(err){
-			console.log(err);
+			console.log("Error in GET BOOKING USER " + err);
 			res.status(500).json({"error" : true, "message" : "Error while Fetching bookings for a user"});
-			// res.status(500).send({message: 'Error while Fetching bookings for a user',  error: err});
 		}else{
 			console.log('now rows' + rows.length);
 			res.status(200).json({"error" : false, "message" : rows});
-			// res.send(rows);
 		}
 	});
 })
@@ -175,15 +169,14 @@ router.post('/Booking', function(req, res){
 	let date = req.body.data.bookingDate;
 	let duration = req.body.data.duration;
 	let d = new Date();
-	db.all("INSERT INTO Booking (start_time, date, user_id, created_at, duration) VALUES ('" 
-	+ startTime + "','" + date + "','" + userId + "','" + d +  "','" + duration +"');",function(err,rows){
+	let query = "INSERT INTO Booking (start_time, date, user_id, created_at, duration) VALUES ('" 
+					+ startTime + "','" + date + "','" + userId + "','" + d +  "','" + duration +"');";
+	db.all(query ,function(err,rows){
 		if(err){
-			console.log(err);
+			console.log("Error in POST BOOKING " + err);
 			res.status(500).json({"error" : true, "message" : "Error while creating booking"});
-			// res.status(400).send({message: 'Error while Fetching columns from table',  error: err});
 		}else{
 			res.status(200).json({"error" : false, "message" : rows});
-			// res.send(rows);
 		}
 	});
 })
@@ -200,10 +193,11 @@ router.put('/Booking', function(req, res){
 	let date = req.body.data.bookingDate;
 	let duration = req.body.data.duration;
 	let d = new Date();
-	db.all("INSERT INTO Booking (start_time, date, user_id, created_at, duration) VALUES ('" 
-	+ startTime + "','" + date + "','" + userId + "','" + d +  "','" + duration +"');",function(err,rows){
+	let query = "INSERT INTO Booking (start_time, date, user_id, created_at, duration) VALUES ('" 
+					+ startTime + "','" + date + "','" + userId + "','" + d +  "','" + duration +"');";
+	db.all(query ,function(err,rows){
 		if(err){
-			console.log(err);
+			console.log("Error in PUT BOOKING " + err);
 			res.status(400).send({message: 'Error while Fetching columns from table',  error: err});
 		}else{
 			res.send(rows);
@@ -218,14 +212,13 @@ router.put('/Booking', function(req, res){
  */
 router.get('/Booking/Date', function(req, res){
 	let bookinDate = req.query.bookingDate;
-	db.all("SELECT * FROM Booking where date = '"+bookinDate+"';",function(err,rows){
+	let query = "SELECT * FROM Booking where date = '"+bookinDate+"';";
+	db.all(query ,function(err,rows){
 		if(err){
-			console.log(err);
+			console.log("Error in GET BOOKING/DATE " + err);
 			res.status(500).json({"error" : true, "message" : "Error while fetching bookings!"});
-			// res.status(400).send({message: 'Error while Fetching columns from table',  error: err});
 		}else{
 			res.status(200).json({"error" : false, "message" : rows});
-			// res.send(rows);
 		}
 	});
 })
@@ -237,13 +230,13 @@ router.get('/Booking/Date', function(req, res){
  */
 router.get('/Booking/User', function(req, res){
 	let userId = req.query.userId;
-	db.all("SELECT * FROM Booking where user_id = '"+userId+"';",function(err,rows){
+	let query = "SELECT * FROM Booking where user_id = '" + userId + "';";
+	db.all(query ,function(err,rows){
 		if(err){
-			console.log(err);
+			console.log("Error in GET BOOKING/USER " + err);
 			res.status(500).json({"error" : true, "message" : "Error while fetching bookings!"});
 		}else{
 			res.status(200).json({"error" : false, "message" : rows});
-			// res.send(rows);
 		}
 	});
 })
@@ -255,14 +248,13 @@ router.get('/Booking/User', function(req, res){
  */
 router.delete('/Booking', function(req, res){
 	let bookingId = req.query.bookingId;
-	db.all("DELETE FROM Booking where id = '"+bookingId+"';",function(err,rows){
+	let query = "DELETE FROM Booking where id = '"+bookingId+"';";
+	db.all(query ,function(err,rows){
 		if(err){
-			console.log(err);
-			res.status(500).json({"error" : true, "message" : "deleted successfully!"});
-			// res.status(400).send({message: 'Error while Fetching columns from table',  error: err});
+			console.log("Error in DELETE BOOKING " + err);
+			res.status(500).json({"error" : true, "message" : "deleted unsuccessfully!"});
 		}else{
 			res.status(200).json({"error" : false, "message" : rows});
-			// res.send(rows);
 		}
 	});
 })
@@ -272,6 +264,6 @@ router.delete('/Booking', function(req, res){
  * @param {integer} port - Node requires port on which it will run
  * @param {function} callback funtion which runs as soon as the server starts
  */
-app.listen(port, function () {
-  console.log('Example app listening on port 3000!')
+app.listen(process.env.PORT || port, function () {
+  console.log('Table Tennis app listening on port 3000!')
 })
