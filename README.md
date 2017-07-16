@@ -13,4 +13,4 @@ npm install,
 node app.js
 
 For running test cases:
-npm test
+npm test (Make sure project is running for test cases to work)
