@@ -17,6 +17,7 @@ const nunjucks = require('nunjucks');
 const dbPath = "./TableBooking.db";
 const db = new sqlite3.Database(dbPath);
 const port = 3000;
+const router = express.Router();
 
 //configuring nunjucks
 nunjucks.configure('./public/views/', {
@@ -33,18 +34,19 @@ app.use(body_parser.urlencoded({
 }));
 
 app.use(cookie_parser()); 
-app.set('view engine', 'html');
 
+app.set('view engine', 'html');
+app.use('/', router); 
  /**
  * Default route for the application, checks DB connections get hold of total rows in DB
  * @param {object} req - Node req object used for making server calls from Node server
  * @param {object} res - Node res object used for receiving result from Node server calls
  */
-app.get('/', function (req, res) {
+router.get('/', function (req, res) {
 	if(req.cookies.userId != undefined){
-		res.render('booking');
+		res.status(200).render('booking');
 	}else{
-		res.render("login");
+		res.status(200).render("login");
 	}
 })
 
@@ -53,7 +55,7 @@ app.get('/', function (req, res) {
  * @param {object} req - Node req object used for making server calls from Node server
  * @param {object} res - Node res object used for receiving result from Node server calls
  */
-app.get('/booking', function(req, res){
+router.get('/booking', function(req, res){
 	if(req.cookies.userId != undefined){
 		res.render('booking');
 	}else{
@@ -66,27 +68,53 @@ app.get('/booking', function(req, res){
  * @param {object} req - Node req object used for making server calls from Node server
  * @param {object} res - Node res object used for receiving result from Node server calls
  */
-app.post('/User', function(req, res){
-  	var email = req.body.data.email;
-  	var password = req.body.data.password;
+router.post('/User', function(req, res){
+	console.log(req.body);
+  	let email = req.body.data.email;
+  	let password = req.body.data.password;
     db.all("SELECT * FROM User WHERE email='" + email + "' AND password ='" + password + "';",function(err,rows){
 		if(err){
 			console.log(err);
-			res.status(500).send({message: 'Error while Fetching data from User Table',  error: err});
+			res.status(500).json({"error" : true, "message" : "Error while Fetching data from User Table"});
+			// res.status(500).send({message: '',  error: err});
 		}else{
 			//checking if username and password combo already taken
 			if(rows.length > 0){
-				res.status(500).send("User Already exists");
+				res.status(500).json({"error" : true, "message" : "User Already exists"});
+				// res.status(500).send("");
 			}else{
 				db.all("INSERT INTO User (email, password) VALUES ('" + email + "','" + password + "');",function(err,rows){
 					if(err){
 						console.log(err);
-						res.status(500).send({message: 'Error while Fetching columns from table',  error: err});
+						res.status(500).json({"error" : true, "message" : "Error while Fetching columns from table"});
+						// res.status(500).send({message: '',  error: err});
 					}else{
-						res.send(rows);
+						console.log(rows);
+						res.status(200).json({"error" : false, "message" : rows});
+						// res.send(rows);
 					}
 				});
 			}
+		}
+	});
+})
+
+ /**
+ * API for creating new user with given username and password
+ * @param {object} req - Node req object used for making server calls from Node server
+ * @param {object} res - Node res object used for receiving result from Node server calls
+ */
+router.delete('/User', function(req, res){
+	console.log(req.body);
+  	let email = req.body.data.email;
+  	let password = req.body.data.password;
+	  console.log("came here"+ req.body);
+    db.all("DELETE FROM User WHERE email='" + email + "' AND password ='" + password + "';",function(err,rows){
+		if(err){
+			console.log(err);
+			res.status(500).json({"error" : true, "message" : "Error while deleting data from User Table"});
+		}else{
+			res.status(200).json({"error" : false, "message" : rows});
 		}
 	});
 })
@@ -96,18 +124,21 @@ app.post('/User', function(req, res){
  * @param {object} req - Node req object used for making server calls from Node server
  * @param {object} res - Node res object used for receiving result from Node server calls
  */
-app.get('/User', function(req, res){
-  	var email = req.query.email;
-  	var password = req.query.password;
+router.get('/User', function(req, res){
+  	let email = req.query.email;
+  	let password = req.query.password;
   	db.all("SELECT * FROM User WHERE email='" + email + "' AND password ='" + password + "';",function(err,rows){
 		if(err){
 			console.log(err);
-			res.status(500).send({message: 'Error while Fetching user from User table',  error: err});
+			res.status(500).json({"error" : true, "message" : "Error while Fetching user from User table"});
+			// res.status(500).send({message: 'Error while Fetching user from User table',  error: err});
 		}else{
 			if(rows.length >0){
-				res.status(200).send(rows);
+				res.status(200).json({"error" : false, "message" : rows});
+				// res.status(200).send(rows);
 			}else{
-				res.status(500).send("no record found");
+				res.status(500).json({"error" : true, "message" : "no record found"});
+				// res.status(500).send("");
 			}
 		}
 	});
@@ -118,15 +149,17 @@ app.get('/User', function(req, res){
  * @param {object} req - Node req object used for making server calls from Node server
  * @param {object} res - Node res object used for receiving result from Node server calls
  */
-app.get('/Booking/User', function(req, res){
-  var userId = req.cookies.userId;
+router.get('/Booking/User', function(req, res){
+  	let userId = req.cookies.userId;
   	db.all("SELECT * FROM Booking WHERE user_id=" + userId +" ORDER BY date, start_time;",function(err,rows){
 		if(err){
 			console.log(err);
-			res.status(500).send({message: 'Error while Fetching bookings for a user',  error: err});
+			res.status(500).json({"error" : true, "message" : "Error while Fetching bookings for a user"});
+			// res.status(500).send({message: 'Error while Fetching bookings for a user',  error: err});
 		}else{
 			console.log('now rows' + rows.length);
-			res.send(rows);
+			res.status(200).json({"error" : false, "message" : rows});
+			// res.send(rows);
 		}
 	});
 })
@@ -136,19 +169,21 @@ app.get('/Booking/User', function(req, res){
  * @param {object} req - Node req object used for making server calls from Node server
  * @param {object} res - Node res object used for receiving result from Node server calls
  */
-app.post('/Booking', function(req, res){
-	var userId = req.body.data.userId;
-	var startTime = req.body.data.startTime;
-	var date = req.body.data.bookingDate;
-	var duration = req.body.data.duration;
-	var d = new Date();
+router.post('/Booking', function(req, res){
+	let userId = req.body.data.userId;
+	let startTime = req.body.data.startTime;
+	let date = req.body.data.bookingDate;
+	let duration = req.body.data.duration;
+	let d = new Date();
 	db.all("INSERT INTO Booking (start_time, date, user_id, created_at, duration) VALUES ('" 
 	+ startTime + "','" + date + "','" + userId + "','" + d +  "','" + duration +"');",function(err,rows){
 		if(err){
 			console.log(err);
-			res.status(400).send({message: 'Error while Fetching columns from table',  error: err});
+			res.status(500).json({"error" : true, "message" : "Error while creating booking"});
+			// res.status(400).send({message: 'Error while Fetching columns from table',  error: err});
 		}else{
-			res.send(rows);
+			res.status(200).json({"error" : false, "message" : rows});
+			// res.send(rows);
 		}
 	});
 })
@@ -159,12 +194,12 @@ app.post('/Booking', function(req, res){
  * @param {object} req - Node req object used for making server calls from Node server
  * @param {object} res - Node res object used for receiving result from Node server calls
  */
-app.put('/Booking', function(req, res){
-	var userId = req.body.data.userId;
-	var startTime = req.body.data.startTime;
-	var date = req.body.data.bookingDate;
-	var duration = req.body.data.duration;
-	var d = new Date();
+router.put('/Booking', function(req, res){
+	let userId = req.body.data.userId;
+	let startTime = req.body.data.startTime;
+	let date = req.body.data.bookingDate;
+	let duration = req.body.data.duration;
+	let d = new Date();
 	db.all("INSERT INTO Booking (start_time, date, user_id, created_at, duration) VALUES ('" 
 	+ startTime + "','" + date + "','" + userId + "','" + d +  "','" + duration +"');",function(err,rows){
 		if(err){
@@ -181,14 +216,16 @@ app.put('/Booking', function(req, res){
  * @param {object} req - Node req object used for making server calls from Node server
  * @param {object} res - Node res object used for receiving result from Node server calls
  */
-app.get('/Booking/Date', function(req, res){
-	var bookinDate = req.query.bookingDate;
+router.get('/Booking/Date', function(req, res){
+	let bookinDate = req.query.bookingDate;
 	db.all("SELECT * FROM Booking where date = '"+bookinDate+"';",function(err,rows){
 		if(err){
 			console.log(err);
-			res.status(400).send({message: 'Error while Fetching columns from table',  error: err});
+			res.status(500).json({"error" : true, "message" : "Error while fetching bookings!"});
+			// res.status(400).send({message: 'Error while Fetching columns from table',  error: err});
 		}else{
-			res.send(rows);
+			res.status(200).json({"error" : false, "message" : rows});
+			// res.send(rows);
 		}
 	});
 })
@@ -198,14 +235,15 @@ app.get('/Booking/Date', function(req, res){
  * @param {object} req - Node req object used for making server calls from Node server
  * @param {object} res - Node res object used for receiving result from Node server calls
  */
-app.get('/Booking/User', function(req, res){
-	var userId = req.query.userId;
+router.get('/Booking/User', function(req, res){
+	let userId = req.query.userId;
 	db.all("SELECT * FROM Booking where user_id = '"+userId+"';",function(err,rows){
 		if(err){
 			console.log(err);
-			res.status(400).send({message: 'Error while Fetching columns from table',  error: err});
+			res.status(500).json({"error" : true, "message" : "Error while fetching bookings!"});
 		}else{
-			res.send(rows);
+			res.status(200).json({"error" : false, "message" : rows});
+			// res.send(rows);
 		}
 	});
 })
@@ -215,14 +253,16 @@ app.get('/Booking/User', function(req, res){
  * @param {object} req - Node req object used for making server calls from Node server
  * @param {object} res - Node res object used for receiving result from Node server calls
  */
-app.delete('/Booking', function(req, res){
-	var bookingId = req.query.bookingId;
+router.delete('/Booking', function(req, res){
+	let bookingId = req.query.bookingId;
 	db.all("DELETE FROM Booking where id = '"+bookingId+"';",function(err,rows){
 		if(err){
 			console.log(err);
-			res.status(400).send({message: 'Error while Fetching columns from table',  error: err});
+			res.status(500).json({"error" : true, "message" : "deleted successfully!"});
+			// res.status(400).send({message: 'Error while Fetching columns from table',  error: err});
 		}else{
-			res.send(rows);
+			res.status(200).json({"error" : false, "message" : rows});
+			// res.send(rows);
 		}
 	});
 })

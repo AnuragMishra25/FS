@@ -38,16 +38,16 @@ loginApp.controller('loginController', ['$scope', '$http', function($scope,$http
                     dataType: 'json',
                     contentType: "application/json",
                     data: JSON.stringify({data: obj}),
-                    success: function(success){
-                        console.log(success);
+                    success: function(data){
+                        console.log(data);
                         $scope.message = "";
                         $('#pMessage').html('User Created, Login to continue!');
                         $('#pMessage').css('color', 'green');
                         $scope.showLoginControl();
                     },
                     error: function (error){
-                        if(error.responseText == "User Already exists"){
-                            $('#pMessage').html('User Already exists');
+                        if(error.responseJSON.error){
+                            $('#pMessage').html(error.responseJSON.message);
                             $('#pMessage').css('color', 'red');
                         }
                         console.log(error);
@@ -120,16 +120,18 @@ loginApp.controller('loginController', ['$scope', '$http', function($scope,$http
                 type: 'GET',
                 async: true,
                 dataType: 'json',
-                success: function(success){
-                    var userid = success[0].user_id;
+                success: function(data){
+                    var userid = data.message[0].user_id;
                     //creating cookie for next time auto login
                     $scope.createCookie("userId",userid, 90);
                     location.href="/booking";
-                    console.log(success);
+                    console.log(data);
                 },
                 error: function (error){
-                    alert("OOPS!! Something went wrong!");
-                    console.log(error);
+                    if(error.responseJSON.error){
+                        alert("Wrong credentials!");
+                        console.log(error);
+                    }
                 }
             });
         }

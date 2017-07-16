@@ -172,7 +172,8 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
             type: 'GET',
             async: true,
             dataType: 'json',
-            success: function(success){
+            success: function(data){
+                var success = data.message;
                 $scope.range = [];
                 for(var item in success){
                     $scope.range.push({'start':success[item].start_time, 'end': success[item].start_time+ success[item].duration});
@@ -181,8 +182,10 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
                 console.log(success);
             },
             error: function (error){
-                alert("OOPS Something went wrong!");
-                console.log(error);
+                if(error.responseJSON.error){
+                    alert("Can't fetch bookings for this date!");
+                    console.log(error);
+                }
             }
         });
     };
@@ -214,15 +217,17 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
                     dataType: 'json',
                     contentType: "application/json",
                     data: JSON.stringify({data: obj}),
-                    success: function(successResponse){
+                    success: function(data){
                         $scope.showListContainer();
                         $scope.getMyBookings();
-                        console.log(successResponse);
+                        console.log(data);
                         alert("Booking succesfull");
                     },
-                    error: function (errorResponse){
-                        alert("Booking unsuccesfull");
-                        console.log(errorResponse);
+                    error: function (error){
+                        if(error.responseJSON.error){
+                            alert("Booking unsuccesfull");
+                            console.log(errorResponse);
+                        }
                     }
                 });
             }else{
@@ -283,7 +288,8 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
             type: 'GET',
             async: false,
             dataType: 'json',
-            success: function(success){
+            success: function(data){
+                var success= data.message;
                 for(var item in success){
                     var obj = [];
                     obj.push(success[item].id);
@@ -296,8 +302,10 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
                 $scope.initDataTable();
             },
             error: function (error){
-                alert("Error while fetching booking!");
-                console.log(error);
+                if(error.responseJSON.error){
+                    alert("Error while fetching booking!");
+                    console.log(error);
+                }
             }
         });    
     };
@@ -314,14 +322,16 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
             async: true,
             dataType: 'json',
             contentType: "application/json",
-            success: function(success){
+            success: function(data){
                 $scope.table.row('.selected').remove().draw( false );
-                console.log(success);
+                console.log(data);
                 alert("Deleted succesfull");
             },
             error: function (error){
-                alert("Deleting unsuccesfull");
-                console.log(error);
+                if(error.responseJSON.error){
+                    alert("Deleting unsuccesfull");
+                    console.log(error);
+                }
             }
         });
     };
