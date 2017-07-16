@@ -63,11 +63,28 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
                     $(this).addClass('selected');
                 }
             });
+            $scope.initDatePicker();
         }
         catch(ex){
             console.log("Exception while initializing the App");
         }
     };
+
+    $scope.initDatePicker = function(){
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; //January is 0!
+        var yyyy = today.getFullYear();
+        if(dd<10){
+                dd='0'+dd
+            } 
+            if(mm<10){
+                mm='0'+mm
+            } 
+
+        today = yyyy+'-'+mm+'-'+dd;
+        document.getElementById("dpDate").setAttribute("min", today);
+    }
 
     $scope.makeEmptyBar = function(){
         for(var i =0;i<1440;i++){
@@ -104,15 +121,37 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
     };
 
     $scope.checkIfValidChoice = function(duration){
+        //check with other bookings
         for(var i= $scope.startTime;i<$scope.startTime+duration;i++){
             if($scope.bar[i] == 1){
                 console.log("Invalid");
                 return false;
             }
         }
+
+        //this code is for checking if user tries to book within 60 minutes of his booking
+        var d = $scope.dataSet;
+        for(var item in d){
+            if(d[item][1] == $($scope.constDpDateId).val()){
+                var itemDuration = parseInt(d[item][3].split(' ')[0]);
+                var endTime = $scope.convertTimeToNumber(d[item][2])+itemDuration;
+                if(endTime < $scope.startTime){
+                    if($scope.startTime - endTime < 60){
+                        return false;
+                    }
+                }
+                if($scope.convertTimeToNumber(d[item][2]) > ($scope.startTime + duration)){
+                    if($scope.convertTimeToNumber(d[item][2]) - ($scope.startTime + duration) < 60){
+                        return false;
+                    }
+                }
+            }
+        }
         console.log("Valid");
         return true;
     };
+
+
 
     $scope.recreateSlider = function(){
         $scope.makeEmptyBar();
@@ -152,6 +191,10 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
      * Create booking for a paticular User
      */
     $scope.createBooking = function(){
+        if($($scope.constDpDateId).val() == ""){
+            alert("Please choose a date to book!");
+            return;
+        }
         if($scope.validateDuration()){
             var duration = parseInt($($scope.constDurationId).val());
             var flag = $scope.checkIfValidChoice(duration );
@@ -214,6 +257,13 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
         return (hours +":" + minutes);
     }
 
+    $scope.convertTimeToNumber = function(time){
+        var hours = time.split(':')[0];
+        hours =60* parseInt(hours);
+        min = parseInt(time.split(':')[1]);
+        return(hours+min);
+    }
+
     /**
      * Function to logout user from the application
      */
@@ -240,6 +290,7 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
                     obj.push(success[item].date);
                     obj.push($scope.convertNumberToTime(success[item].start_time));
                     obj.push(success[item].duration + " Minutes");
+                    obj.push(success[item].created_at);
                     $scope.dataSet.push(obj);
                 }
                 $scope.initDataTable();
@@ -292,11 +343,19 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
                 "scrollY":  '50vh',
                 "scrollCollapse": true,
                 data: $scope.dataSet,
+                "columnDefs": [
+                    {
+                        "targets": [ 4 ],
+                        "visible": false,
+                        "searchable": false
+                    }
+                ],
                 columns: [
                     { title: "Booking Id" },
                     { title: "Date" },
                     { title: "Start Time" },
-                    { title: "Duration" }
+                    { title: "Duration" },
+                    {title: "Created At"}
                 ]
             });
         }
@@ -315,6 +374,7 @@ bookingApp.controller('bookingController', ['$scope','$http', function($scope, $
         $scope.range=[];
         $scope.rangeHightLights=[];
         $scope.recreateSlider();
+        $scope.startTime=0;
         $($scope.constDvListBookingId).css('display','none');
         $($scope.constDvCreateBookingId).css('display','block');
     }

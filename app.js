@@ -153,6 +153,29 @@ app.post('/Booking', function(req, res){
 	});
 })
 
+
+/**
+ *API for editing existing Booking
+ * @param {object} req - Node req object used for making server calls from Node server
+ * @param {object} res - Node res object used for receiving result from Node server calls
+ */
+app.put('/Booking', function(req, res){
+	var userId = req.body.data.userId;
+	var startTime = req.body.data.startTime;
+	var date = req.body.data.bookingDate;
+	var duration = req.body.data.duration;
+	var d = new Date();
+	db.all("INSERT INTO Booking (start_time, date, user_id, created_at, duration) VALUES ('" 
+	+ startTime + "','" + date + "','" + userId + "','" + d +  "','" + duration +"');",function(err,rows){
+		if(err){
+			console.log(err);
+			res.status(400).send({message: 'Error while Fetching columns from table',  error: err});
+		}else{
+			res.send(rows);
+		}
+	});
+})
+
 /**
  *API for fetching booking by date
  * @param {object} req - Node req object used for making server calls from Node server

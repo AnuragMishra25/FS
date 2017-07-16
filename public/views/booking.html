@@ -52,6 +52,14 @@
                         <button class="btn btn-md btn-primary btn-block" ng-click="createBooking()" id="btnBook" type="button">Book Table</button> 
                     </div>
                 </div>
+                <div>
+                    <ul>Please Note
+                        <li>You cannot book a table within 60 Minutes of your other bookings</li>
+                        <li>You booking duration can range from 10 Minutes to 60 Minutes</li>
+                        <li>Areas marked in Red are representing occupied slots</li>
+                        <li>You cannot book for past dates</li>
+                    </ul>
+                </div>
             </form>
         </div>
         <div id="dvListBooking" class="row" style="border:1px solid black; padding:20px;">
@@ -72,6 +80,7 @@
 								<th>Date</th>
 								<th>Start Time</th>
                                 <th>Duration</th>
+                                <th>Created At</th>
 							</tr>
 						</thead>
 					</table>
